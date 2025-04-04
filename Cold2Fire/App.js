@@ -5,18 +5,31 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function App() {
   const [celsius, setCelsius] = useState(null);
-  const [fahrenheit, setFahrenheit] = useState(null);
+  const [convertedTemp, setConvertedTemp] = useState(null);
+  const [scale, setScale] = useState('fahrenheit');
   const [message, setMessage] = useState("Digite a temperatura em Celsius");
   const [textButton, setTextButton] = useState("Converter");
 
   function converterTemperatura() {
     if (celsius != null) {
       Keyboard.dismiss();
-      setFahrenheit((celsius * 9/5 + 32).toFixed(1));
+      
+      let temp;
+      let unit;
+      
+      if (scale === 'fahrenheit') {
+        temp = (celsius * 9/5 + 32).toFixed(1);
+        unit = '°F';
+      } else {
+        temp = (parseFloat(celsius) + 273.15).toFixed(1);
+        unit = 'K';
+      }
+      
+      setConvertedTemp({ value: temp, unit });
       setMessage("Temperatura convertida:");
       setTextButton("Novo cálculo");
     } else {
-      setFahrenheit(null);
+      setConvertedTemp(null);
       setMessage("Digite a temperatura em Celsius");
       setTextButton("Converter");
     }
@@ -26,7 +39,7 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Cold2Fire</Text>
-        <Text style={styles.subtitle}>Conversor C° → F°</Text>
+        <Text style={styles.subtitle}>Conversor de Temperatura</Text>
       </View>
 
       <View style={styles.content}>
@@ -41,6 +54,22 @@ export default function App() {
           />
         </View>
 
+        <View style={styles.scaleSelector}>
+          <TouchableOpacity
+            style={[styles.scaleButton, scale === 'fahrenheit' && styles.scaleButtonActive]}
+            onPress={() => setScale('fahrenheit')}
+          >
+            <Text style={[styles.scaleButtonText, scale === 'fahrenheit' && styles.scaleButtonTextActive]}>Fahrenheit (°F)</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.scaleButton, scale === 'kelvin' && styles.scaleButtonActive]}
+            onPress={() => setScale('kelvin')}
+          >
+            <Text style={[styles.scaleButtonText, scale === 'kelvin' && styles.scaleButtonTextActive]}>Kelvin (K)</Text>
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity 
           style={styles.convertButton}
           onPress={converterTemperatura}
@@ -51,10 +80,10 @@ export default function App() {
 
         <View style={styles.resultContainer}>
           <Text style={styles.message}>{message}</Text>
-          {fahrenheit && (
+          {convertedTemp && (
             <View style={styles.resultDisplay}>
-              <Text style={styles.resultValue}>{fahrenheit}</Text>
-              <Text style={styles.resultUnit}>°F</Text>
+              <Text style={styles.resultValue}>{convertedTemp.value}</Text>
+              <Text style={styles.resultUnit}>{convertedTemp.unit}</Text>
             </View>
           )}
         </View>
@@ -79,7 +108,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   title: {
-    color: '#FF7D45',
+    color: '#FB5012',
     fontSize: 36,
     fontWeight: '800',
     letterSpacing: 1.5,
@@ -111,6 +140,33 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2E4A53',
   },
+  scaleSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  scaleButton: {
+    flex: 1,
+    padding: 12,
+    marginHorizontal: 5,
+    borderRadius: 8,
+    backgroundColor: '#1A2E35',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2E4A53',
+  },
+  scaleButtonActive: {
+    backgroundColor: '#FF7D45',
+    borderColor: '#FF7D45',
+  },
+  scaleButtonText: {
+    color: '#6DD3D6',
+    fontSize: 14,
+  },
+  scaleButtonTextActive: {
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
   convertButton: {
     backgroundColor: '#FF7D45',
     flexDirection: 'row',
@@ -140,12 +196,12 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   resultValue: {
-    color: '#FF7D45',
+    color: '#FB5012',
     fontSize: 48,
     fontWeight: '700',
   },
   resultUnit: {
-    color: '#FF7D45',
+    color: '#FB5012',
     fontSize: 32,
     fontWeight: '600',
     marginLeft: 5,
